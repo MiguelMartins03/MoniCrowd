@@ -6,7 +6,7 @@ import sys
 
 PID_FILE = "/home/kali/Desktop/sniffer.pid"
 
-dr_con = sqlite3.connect('/home/kali/Desktop/DB/DeviceRecords.db', timeout=30)
+dr_con = sqlite3.connect('/home/kali/Desktop/MemoryDB/DeviceRecords.db', timeout=30)
 dr_cur = dr_con.cursor()
 
 dr_con.execute("PRAGMA journal_mode = WAL")
