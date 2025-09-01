@@ -41,18 +41,18 @@ def frame_processing(frame):
 
         if(frame[Dot11].type == 0):                                                                                 # MANAGEMENT FRAMES
 
-            if(bin(int(frame[Dot11].addr2[1],16))[-2] == '0'):                                                      # Check if 3rd bit from 2nd byte is '1' to verify if MAC is randomized (frame[Dot11].addr2" -> Transmitter/Source Address)
+            if(int(frame[Dot11].addr2[1],16) & 0x2 == 0):                                                      # Check if 3rd bit from 2nd byte is '1' to verify if MAC is randomized (frame[Dot11].addr2" -> Transmitter/Source Address)
                 
-                footprint_mac = hex(lib.t1ha0(frame[Dot11].addr2.encode('ASCII'), len(frame[Dot11].addr2), 11))[2:].upper().zfill(16)
+                footprint_mac = hex(lib.t1ha0(frame[Dot11].addr2.upper().encode('ASCII'), len(frame[Dot11].addr2), 11))[2:].upper()
                 putInToProbeRequestsDB(footprint_mac, manuf)
-                #print("Probe Request | Source: " + frame[Dot11].addr2.upper() + " | Footprint: " + footprint_mac + " | SEQ: " + str(int(bin(frame[Dot11].SC)[-12:].lstrip('b'),2)) + " | Power: " + str(frame[RadioTap].dBm_AntSignal) + " dBm | Manuf: " + manuf )
+                #print("Probe Request | Source: " + frame[Dot11].addr2.upper() + " | Footprint: " + footprint_mac + " | SEQ: " + str(frame[Dot11].SC >> 4) + " | Power: " + str(frame[RadioTap].dBm_AntSignal) + " dBm | Manuf: " + manuf )
                 return
 
             else:
 
                 ie = frame.getlayer(Dot11Elt)
                 array_v = []
-                
+
                 while ie:
                     if(ie.ID == 1):                            # Supported Rates
                         array_v.append(ie.ID)
@@ -77,17 +77,17 @@ def frame_processing(frame):
                             if(i != 4):
                                 array_v.append(c)
                             else:
-                                array_v.append(0)
-                    
-                    elif(ie.ID == 191):                        # VHT Capabilities
-                        array_v.append(ie.ID)
-                        array_v.append(ie.len)
-                        for c in ie.info:
-                            array_v.append(c)
+                                array_v.append(ord('0'))
                     
                     elif(ie.ID == 127):                        # Extended Capabilities
                         array_v.append(ie.ID)
                         #array_v.append(ie.len)
+                        for c in ie.info:
+                            array_v.append(c)
+                    
+                    elif(ie.ID == 191):                        # VHT Capabilities
+                        array_v.append(ie.ID)
+                        array_v.append(ie.len)
                         for c in ie.info:
                             array_v.append(c)
                     
@@ -103,6 +103,12 @@ def frame_processing(frame):
                         for c in ie.info:
                             array_v.append(c)
                     
+                    elif(ie.ID == 59):                        # Supported Operating Classes
+                        array_v.append(ie.ID)
+                        array_v.append(ie.len)
+                        for c in ie.info:
+                            array_v.append(c)
+                    
                     elif(ie.ID == 221):                        # Vendor Specific
                         array_v.append(ie.ID)
                         array_v.append(ie.len)
@@ -110,21 +116,21 @@ def frame_processing(frame):
                             if(i != 5 and i != 7):
                                 array_v.append(c)
                             else:
-                                array_v.append(0)
+                                array_v.append(ord('0'))
                     
                     ie = ie.payload
                 
-                footprint_mac = hex(lib.t1ha0(bytes(array_v), len(array_v), 3))[2:].upper().zfill(16)
+                footprint_mac = hex(lib.t1ha0(bytes(array_v), len(array_v), 3))[2:].upper()
                 putInToProbeRequestsDB(footprint_mac, manuf)
-                #print("Probe Request | Source: " + frame[Dot11].addr2.upper() + " | Footprint: " + footprint_mac + " | SEQ: " + str(int(bin(frame[Dot11].SC)[-12:].lstrip('b'),2)) + " | Power: " + str(frame[RadioTap].dBm_AntSignal) + " dBm | Manuf: " + manuf )
+                #print("Probe Request | Source: " + frame[Dot11].addr2.upper() + " | Footprint: " + footprint_mac + " | SEQ: " + str(frame[Dot11].SC >> 4) + " | Power: " + str(frame[RadioTap].dBm_AntSignal) + " dBm | Manuf: " + manuf )
                 return
         else:                                                                                                       # DATA FRAMES
             
             if("to-DS" in str(frame[Dot11].FCfield)):
 
-                footprint_mac = hex(lib.t1ha0(frame[Dot11].addr2.encode('ASCII'), len(frame[Dot11].addr2), 11))[2:].upper().zfill(16)
+                footprint_mac = hex(lib.t1ha0(frame[Dot11].addr2.upper().encode('ASCII'), len(frame[Dot11].addr2), 11))[2:].upper()
                 putInToDataPacketsDB(footprint_mac, manuf)
-                #print("Data Packet   | Source: " + frame[Dot11].addr2.upper() + " | Footprint: " + footprint_mac + " | SEQ: " + str(int(bin(frame[Dot11].SC)[-12:].lstrip('b'),2)) + " | Power: " + str(frame[RadioTap].dBm_AntSignal) + " dBm | Manuf: " + manuf )
+                #print("Data Packet   | Source: " + frame[Dot11].addr2.upper() + " | Footprint: " + footprint_mac + " | SEQ: " + str(frame[Dot11].SC >> 4) + " | Power: " + str(frame[RadioTap].dBm_AntSignal) + " dBm | Manuf: " + manuf )
                 return
 
 def putInToProbeRequestsDB(id, manuf):
@@ -155,7 +161,7 @@ def signal_term_handler(signal, frame):
 
 signal.signal(signal.SIGTERM, signal_term_handler)
 
-conf.layers.filter([RadioTap, Dot11])           # Enable filtering: only RadioTap and Dot11 will be dissected
+#conf.layers.filter([RadioTap, Dot11, Dot11Elt])           # Enable filtering: only RadioTap, Dot11 and Dot11Elt will be dissected
 
 filter_str = "(wlan type data) || (wlan type mgt subtype probe-req)"
 
