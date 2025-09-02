@@ -1,32 +1,38 @@
-Apple
-Samsung
-Huawei
+Apple, Inc.
+Samsung Electronics
+Huawei Device
+Huawei Technologies
 Xiaomi
 OnePlus
-Oppo
-Google
-LG
-Asus
+OPPO Digital
+Oppo Mobile Telecommunications
+Google, Inc.
+ASUSTek COMPUTER INC.
 BlackBerry
-BLU
+BLU Products
 Fairphone
 Gionee
-HTC
-Kyocera
-Lava
-Lemon
+HTC Corporation
+Lava International
 Lenovo
+LG Electronics
+LG Innotek
 Meizu
-Microsoft
-Motorola
+Microsoft Mobile Oy
+Motorola Mobility
+Motorola (Wuhan) Mobility
 Nokia
 Nothing Technology
 Nubia
 Realme
-Sharp
-Sonim
+SHARP Corporation
 Sony
-TCL
-Vivo
-ZTE
+Tcl Communication
+Tcl Incorporated
+TCL King
+TCL New Technology
+TCL Technoly Electronics
+TCL Yuxin Zhixing Technology
+vivo Mobile
+zte corporation
 Honor

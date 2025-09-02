@@ -21,7 +21,8 @@ sc_con.close()
 OUI_DICT = {}
 with open("/home/kali/Desktop/wireshark-oui-list.txt", 'r') as file:
     for line in file:
-        OUI_DICT[line[:8].strip()] = line[34:].strip()
+        splits = line.split('\t')
+        OUI_DICT[splits[0].strip()] = splits[1].strip()
 
 MOBILE_MANUFACTURERS = set()
 with open("/home/kali/Desktop/Mobile_device_manufacturers.txt") as file:
@@ -30,7 +31,7 @@ with open("/home/kali/Desktop/Mobile_device_manufacturers.txt") as file:
 def frame_processing(frame):
 
     manuf = "Unknown"
-    oui = frame[Dot11].addr2[:8].upper().replace(":","-")
+    oui = frame[Dot11].addr2[:8].upper()
 
     result = OUI_DICT.get(oui)
 
