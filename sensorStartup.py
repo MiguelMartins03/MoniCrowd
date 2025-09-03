@@ -24,6 +24,6 @@ snifferProcess = subprocess.Popen(
 with open(PID_FILE, "w") as f:
     f.write(str(snifferProcess.pid))
 
-# hopperProcess = subprocess.Popen(
-#     ["sudo", "/usr/bin/python3", "/home/kali/Desktop/channelHopper.py"]
-# )
+hopperProcess = subprocess.Popen(
+    ["sudo", "/usr/bin/python3", "/home/kali/Desktop/channelHopper.py"]
+)
