@@ -42,7 +42,7 @@ def frame_processing(frame):
 
         if(frame[Dot11].type == 0):                                                                                 # MANAGEMENT FRAMES
 
-            if(int(frame[Dot11].addr2[1],16) & 0x2 == 0):                                                      # Check if 3rd bit from 2nd byte is '1' to verify if MAC is randomized (frame[Dot11].addr2" -> Transmitter/Source Address)
+            if(int(frame[Dot11].addr2[1],16) & 0x2 == 0):                                                           # Check if 3rd bit from 2nd byte is '1' to verify if MAC is randomized (frame[Dot11].addr2" -> Transmitter/Source Address)
                 
                 footprint_mac = hex(lib.t1ha0(frame[Dot11].addr2.upper().encode('ASCII'), len(frame[Dot11].addr2), 11))[2:].upper()
                 putInToProbeRequestsDB(footprint_mac, manuf)
