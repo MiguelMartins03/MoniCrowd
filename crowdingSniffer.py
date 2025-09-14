@@ -24,29 +24,22 @@ with open("/home/kali/Desktop/wireshark-oui-list.txt", 'r') as file:
         splits = line.split('\t')
         OUI_DICT[splits[0].strip()] = splits[1].strip()
 
-MOBILE_MANUFACTURERS = set()
-with open("/home/kali/Desktop/Mobile_device_manufacturers.txt") as file:
-    MOBILE_MANUFACTURERS.update(line.strip().upper() for line in file)
-
 def frame_processing(frame):
 
-    manuf = "Unknown"
-    oui = frame[Dot11].addr2[:8].upper()
+    mac = frame[Dot11].addr2.upper()                # (frame[Dot11].addr2" -> Transmitter/Source Address)
+    oui = mac[:8]
 
-    result = OUI_DICT.get(oui)
+    result, manuf = isMobileManufacturer(oui)
 
-    if result:
-        manuf = result
+    if(result):
 
-    if(isMobileManufacturer(manuf)):
+        if(frame[Dot11].type == 0):                 # MANAGEMENT FRAMES
 
-        if(frame[Dot11].type == 0):                                                                                 # MANAGEMENT FRAMES
-
-            if(int(frame[Dot11].addr2[1],16) & 0x2 == 0):                                                           # Check if 3rd bit from 2nd byte is '1' to verify if MAC is randomized (frame[Dot11].addr2" -> Transmitter/Source Address)
+            if(int(mac[1],16) & 0x2 == 0):          # Check if 3rd bit from 2nd byte is '0' to verify if MAC isn't randomized
                 
-                footprint_mac = hex(lib.t1ha0(frame[Dot11].addr2.upper().encode('ASCII'), len(frame[Dot11].addr2), 11))[2:].upper()
+                footprint_mac = hex(lib.t1ha0(mac.encode('ASCII'), len(mac), 11))[2:].upper()
                 putInToProbeRequestsDB(footprint_mac, manuf)
-                #print("Probe Request | Source: " + frame[Dot11].addr2.upper() + " | Footprint: " + footprint_mac + " | SEQ: " + str(frame[Dot11].SC >> 4) + " | Power: " + str(frame[RadioTap].dBm_AntSignal) + " dBm | Manuf: " + manuf )
+                #print("Probe Request | Source: " + mac + " | Footprint: " + footprint_mac + " | SEQ: " + str(frame[Dot11].SC >> 4) + " | Power: " + str(frame[RadioTap].dBm_AntSignal) + " dBm | Manuf: " + manuf )
                 return
 
             else:
@@ -55,23 +48,23 @@ def frame_processing(frame):
                 array_v = []
 
                 while ie:
-                    if(ie.ID == 1):                            # Supported Rates
+                    if(ie.ID == 1):                 # Supported Rates
                         array_v.append(ie.ID)
                         array_v.append(ie.len)
                         for c in ie.info:
                             array_v.append(c)
                     
-                    elif(ie.ID == 50):                         # Extended Supported Rates
+                    elif(ie.ID == 50):              # Extended Supported Rates
                         array_v.append(ie.ID)
                         array_v.append(ie.len)
                         for c in ie.info:
                             array_v.append(c)
                     
-                    elif(ie.ID == 3):                          # DS Parameter Set
+                    elif(ie.ID == 3):               # DS Parameter Set
                         array_v.append(ie.ID)
                         #array_v.append(ie.len)
                     
-                    elif(ie.ID == 45):                         # HT Capabilities
+                    elif(ie.ID == 45):              # HT Capabilities
                         array_v.append(ie.ID)
                         array_v.append(ie.len)
                         for i, c in enumerate(ie.info):
@@ -80,37 +73,37 @@ def frame_processing(frame):
                             else:
                                 array_v.append(ord('0'))
                     
-                    elif(ie.ID == 127):                        # Extended Capabilities
+                    elif(ie.ID == 127):             # Extended Capabilities
                         array_v.append(ie.ID)
                         #array_v.append(ie.len)
                         for c in ie.info:
                             array_v.append(c)
                     
-                    elif(ie.ID == 191):                        # VHT Capabilities
+                    elif(ie.ID == 191):             # VHT Capabilities
                         array_v.append(ie.ID)
                         array_v.append(ie.len)
                         for c in ie.info:
                             array_v.append(c)
                     
-                    elif(ie.ID == 70):                         # RM Enabled Capabilities 
+                    elif(ie.ID == 70):              # RM Enabled Capabilities 
                         array_v.append(ie.ID)
                         array_v.append(ie.len)
                         for c in ie.info:
                             array_v.append(c)
                     
-                    elif(ie.ID == 107):                        # Interworking
+                    elif(ie.ID == 107):             # Interworking
                         array_v.append(ie.ID)
                         array_v.append(ie.len)
                         for c in ie.info:
                             array_v.append(c)
                     
-                    elif(ie.ID == 59):                        # Supported Operating Classes
+                    elif(ie.ID == 59):              # Supported Operating Classes
                         array_v.append(ie.ID)
                         array_v.append(ie.len)
                         for c in ie.info:
                             array_v.append(c)
                     
-                    elif(ie.ID == 221):                        # Vendor Specific
+                    elif(ie.ID == 221):             # Vendor Specific
                         array_v.append(ie.ID)
                         array_v.append(ie.len)
                         for i, c in enumerate(ie.info):
@@ -123,15 +116,15 @@ def frame_processing(frame):
                 
                 footprint_mac = hex(lib.t1ha0(bytes(array_v), len(array_v), 3))[2:].upper()
                 putInToProbeRequestsDB(footprint_mac, manuf)
-                #print("Probe Request | Source: " + frame[Dot11].addr2.upper() + " | Footprint: " + footprint_mac + " | SEQ: " + str(frame[Dot11].SC >> 4) + " | Power: " + str(frame[RadioTap].dBm_AntSignal) + " dBm | Manuf: " + manuf )
+                #print("Probe Request | Source: " + mac + " | Footprint: " + footprint_mac + " | SEQ: " + str(frame[Dot11].SC >> 4) + " | Power: " + str(frame[RadioTap].dBm_AntSignal) + " dBm | Manuf: " + manuf )
                 return
-        else:                                                                                                       # DATA FRAMES
+        else:                                       # DATA FRAMES
             
             if("to-DS" in str(frame[Dot11].FCfield)):
 
-                footprint_mac = hex(lib.t1ha0(frame[Dot11].addr2.upper().encode('ASCII'), len(frame[Dot11].addr2), 11))[2:].upper()
+                footprint_mac = hex(lib.t1ha0(mac.encode('ASCII'), len(mac), 11))[2:].upper()
                 putInToDataPacketsDB(footprint_mac, manuf)
-                #print("Data Packet   | Source: " + frame[Dot11].addr2.upper() + " | Footprint: " + footprint_mac + " | SEQ: " + str(frame[Dot11].SC >> 4) + " | Power: " + str(frame[RadioTap].dBm_AntSignal) + " dBm | Manuf: " + manuf )
+                #print("Data Packet   | Source: " + mac + " | Footprint: " + footprint_mac + " | SEQ: " + str(frame[Dot11].SC >> 4) + " | Power: " + str(frame[RadioTap].dBm_AntSignal) + " dBm | Manuf: " + manuf )
                 return
 
 def putInToProbeRequestsDB(id, manuf):
@@ -150,10 +143,16 @@ def putInToDataPacketsDB(id, manuf):
         dr_cur.execute("INSERT INTO Data_Packets VALUES( 'Data Packet' , '" + id + "' , current_timestamp , current_timestamp , '" + manuf + "');")
     dr_con.commit()
 
-def isMobileManufacturer(manuf):
-    if manuf == "Unknown":
-        return True
-    return any(mobile_manuf in manuf.upper() for mobile_manuf in MOBILE_MANUFACTURERS)
+def isMobileManufacturer(oui):
+    manuf = "Unknown"
+    result = OUI_DICT.get(oui)
+
+    if result:
+        manuf = result
+        return True, manuf
+    elif(int(oui[1],16) & 0x2 != 0):                # In case the manufacturer isn't found, check if the MAC is randomized
+        return True, manuf
+    return False, manuf
 
 def signal_term_handler(signal, frame):
     open(PID_FILE, "w").close()
@@ -162,7 +161,7 @@ def signal_term_handler(signal, frame):
 
 signal.signal(signal.SIGTERM, signal_term_handler)
 
-#conf.layers.filter([RadioTap, Dot11, Dot11Elt])           # Enable filtering: only RadioTap, Dot11 and Dot11Elt will be dissected
+#conf.layers.filter([RadioTap, Dot11, Dot11Elt])    # Enable filtering: only RadioTap, Dot11 and Dot11Elt will be dissected
 
 filter_str = "(wlan type data) || (wlan type mgt subtype probe-req)"
 
