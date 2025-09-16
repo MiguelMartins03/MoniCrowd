@@ -900,6 +900,7 @@
 18:AB:1D	Samsung Electronics Co.,Ltd
 18:AF:61	Apple, Inc.
 18:AF:8F	Apple, Inc.
+18:B0:A4	zte corporation
 18:BB:1C	Huawei Device Co., Ltd.
 18:BB:41	Huawei Device Co., Ltd.
 18:BF:B3	Samsung Electronics Co., Ltd., Memory Division
@@ -1707,6 +1708,7 @@
 38:8A:BE	Guangdong Oppo Mobile Telecommunications Corp.,Ltd
 38:8B:59	Google, Inc.
 38:8C:50	LG Electronics
+38:8C:EF	Samsung Electronics Co.,Ltd
 38:8F:30	Samsung Electronics Co.,Ltd
 38:90:52	Huawei Technologies Co.,Ltd
 38:90:AF	zte corporation
@@ -1887,6 +1889,7 @@
 40:4D:8E	Huawei Technologies Co.,Ltd
 40:4E:36	HTC Corporation
 40:4F:42	Huawei Technologies Co.,Ltd
+40:54:93	zte corporation
 40:55:82	Nokia
 40:58:46	vivo Mobile Communication Co., Ltd.
 40:5E:F6	Samsung Electronics Co.,Ltd
@@ -4782,6 +4785,7 @@ B8:49:6D	Apple, Inc.
 B8:4F:A7	Apple, Inc.
 B8:50:D8	Beijing Xiaomi Mobile Software Co., Ltd
 B8:51:A9	Nokia
+B8:52:13	zte corporation
 B8:52:E0	Beijing Xiaomi Electronics Co.,Ltd
 B8:53:AC	Apple, Inc.
 B8:56:00	Huawei Technologies Co.,Ltd

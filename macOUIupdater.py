@@ -10,7 +10,7 @@
 import sys
 import os
 
-cmd ='curl "https://www.wireshark.org/download/automated/data/manuf" > wireshark-oui-list.txt'
+cmd ='curl "https://www.wireshark.org/download/automated/data/manuf" > /home/kali/Desktop/wireshark-oui-list.txt'
 print(cmd)
 os.system(cmd)
 
