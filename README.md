@@ -6,3 +6,4 @@
 "tmpfs    /home/kali/Desktop/MemoryDB tmpfs   rw,nodev,nosuid,size=500M 0 0" <br>
 (https://ryan.himmelwright.net/post/tmpfs-mount-ramdisk/) <br>
 A directory named "MemoryDB" has to be created on /Desktop
+3. It may be necessary to run **build_t1ha0_module.py** located in /home/kali/Desktop/t1ha0

@@ -371,46 +371,6 @@ def config_tasks():
     print("(3) Task for Weekly upload of OUI list created.")
     time.sleep(1)
 
-    # # Daily reboot
-    # print("(4) Reboot:")
-    # print("\tReboot Periodicity: ")
-    # print("\t  0 - Daily")
-    # print("\t  1 - Every two days")
-    # print("\t  2 - Every three days")
-    # print("\t  3 - Weekly")
-    # print("\t  4 - Monthly")
-    # print("\t  5 - No Reboot")
-    # rebootPeriodicity = input("\tReboot Periodicity [0-5]: ").strip()
-    # while not (rebootPeriodicity.isdigit() and (int(rebootPeriodicity) >= 0 and int(rebootPeriodicity) < 6)) :
-    #     rebootPeriodicity = input("\tReboot Periodicity [0-5]: ").strip()
-
-    #     if not rebootPeriodicity.isdigit():
-    #         print("\tPlease choose a number.")
-    #     elif rebootPeriodicity.isdigit() and not (int(rebootPeriodicity) >= 0 and int(rebootPeriodicity) < 6):
-    #         print("\tPlease enter a number between 0 and 5.")
-
-    # if   rebootPeriodicity == "0": rebootPeriodicity = 'daily'
-    # elif rebootPeriodicity == "1": rebootPeriodicity = 'everytwodays'
-    # elif rebootPeriodicity == "2": rebootPeriodicity = 'everythreedays'
-    # elif rebootPeriodicity == "3": rebootPeriodicity = 'weekly'
-    # elif rebootPeriodicity == "4": rebootPeriodicity = 'monthly'
-    # elif rebootPeriodicity == "5": rebootPeriodicity = 'noreboot'
-
-    # if rebootPeriodicity != 'noreboot':
-    #     rebootTime = input("\tSensor reboot hour [0-23]: ").strip()
-    #     while not (rebootTime.isdigit() and (int(rebootTime) >= 0 and int(rebootTime) < 24)) :
-    #         rebootTime = input("\tSensor reboot hour [0-23]: ").strip()
-
-    #         if not rebootTime.isdigit():
-    #             print("\tReboot time must be a number.")
-    #         elif rebootTime.isdigit() and not (int(rebootTime) >= 0 and int(rebootTime) < 24):
-    #             print("\tPlease enter a number between 0 and 23.")
-    # else:
-    #     rebootTime = 0
-    # print("Task for daily reboot created.")
-    # time.sleep(1)
-
-    #return uploadInterface,detectionInterface,uploadPeriodicity,slidingWindow,technology.lower(), rebootPeriodicity, rebootTime
     return uploadInterface,detectionInterface,uploadPeriodicity,slidingWindow,technology.lower()
 
 
@@ -436,37 +396,20 @@ def write_crontab_file(status, detection_if, upload_periodicity):
     f.write("*/5 * * * * /usr/bin/python3 /home/kali/Desktop/sensorCommunicationCheck.py\n")
     if status == "Active":
         f.write("# Wi-Fi detection of devices\n")
-        #f.write("*/10 * * * * timeout -k 1 590s sudo airodump-ng --background 1 " + str(detection_if + "\n"))
-        #f.write("*/10 * * * * sleep 595 && sudo pkill airodump-ng\n")
         f.write("@reboot sleep 90 && sudo /usr/bin/python3 /home/kali/Desktop/sensorStartup.py\n")
         f.write("# Periodic upload of crowding data to the Cloud Server\n")
-        f.write("*/" + str(upload_periodicity) + " * * * * /usr/bin/python3 /home/kali/Desktop/sendCrowdingData.py \n")
+        f.write("*/" + str(upload_periodicity) + " * * * * /usr/bin/python3 /home/kali/Desktop/sendCrowdingData.py\n")
         f.write("# Periodic delete of outdated and unnecessary data from local database\n")
         f.write("0 * * * * /usr/bin/python3 /home/kali/Desktop/dataRetentionManager.py 30\n")
     elif status == "Disabled":
         f.write("# Wi-Fi detection of devices\n")
-        #f.write("#*/10 * * * * timeout -k 1 590s sudo airodump-ng --background 1 " + str(detection_if + "\n"))
         f.write("#@reboot sleep 90 && sudo /usr/bin/python3 /home/kali/Desktop/sensorStartup.py\n")
-        #f.write("#*/10 * * * * sleep 595 && sudo pkill airodump-ng\n")
         f.write("# Periodic upload of crowding data to the Cloud Server\n")
-        f.write("#*/" + str(upload_periodicity) + " * * * * /usr/bin/python3 /home/kali/Desktop/sendCrowdingData.py \n")
+        f.write("#*/" + str(upload_periodicity) + " * * * * /usr/bin/python3 /home/kali/Desktop/sendCrowdingData.py\n")
         f.write("# Periodic delete of outdated and unnecessary data from local database\n")
         f.write("#0 * * * * /usr/bin/python3 /home/kali/Desktop/dataRetentionManager.py 30\n")
     f.write("# Periodic upload of OUI list\n")
     f.write("0 0 * * 0 /usr/bin/python3 /home/kali/Desktop/macOUIupdater.py\n")
-    # f.write("# Reboot\n")
-    # if reboot_periodicity == "daily":
-    #     f.write("0 " + str(reboot_time) + " * * * sudo reboot\n")
-    # elif reboot_periodicity == "everytwodays":
-    #     f.write("0 " + str(reboot_time) + " */2 * * sudo reboot\n")
-    # elif reboot_periodicity == "everythreedays":
-    #     f.write("0 " + str(reboot_time) + " */3 * * sudo reboot\n")
-    # elif reboot_periodicity == "weekly":
-    #     f.write("0 " + str(reboot_time) + " * * 0 sudo reboot\n")
-    # elif reboot_periodicity == "monthly":
-    #     f.write("0 " + str(reboot_time) + " 1 * * sudo reboot\n")
-    # elif reboot_periodicity == "noreboot":
-    #     f.write("#0 " + str(reboot_time) + " * * * sudo reboot\n")
 
     f.close()
 
@@ -619,17 +562,6 @@ def change_power_filtration(power_filtration):
         if pid:
             os.system("sudo kill " + pid)
 
-        # # Access the airodump-ng.c file
-        # f = open(AIRODUMP_FILEPATH, 'r')
-        # filecontent = f.readlines()
-
-        # Change the power filtration value to the value passed in the argument
-        #if power_filtration == 0:
-            # Comment line (no packet power filtration)
-        #     filecontent[105] = f"//#define PACKET_POWER_FILTRATION {power_filtration}\n"
-        #else:
-            # Add packet power filtration
-        #     filecontent[105] = f"#define PACKET_POWER_FILTRATION {power_filtration}\n"
         try:
             process = subprocess.Popen(
                 ["sudo", "python3", "crowdingSniffer.py"],
@@ -644,16 +576,6 @@ def change_power_filtration(power_filtration):
         except Exception as e:
             print(f"Error starting crowdingSniffer.py: {e}")
 
-        # Re-write file with everything back
-        # with open(AIRODUMP_FILEPATH, 'w') as f:
-        #     f.writelines(filecontent)
-
-
-        # with open(os.devnull, 'wb') as devnull:
-        #     commands = "sudo make uninstall; make; sudo make install"
-        #     subprocess.run(commands, cwd='/home/kali/Desktop/aircrack-ng-1.7/', shell=True, stdout=devnull, stderr=subprocess.STDOUT)
-
-
 def compare_db_with_cronjobs():
     
     #Obter parametros da base de dados local
@@ -667,8 +589,6 @@ def compare_db_with_cronjobs():
     if len(sensor_configuration) > 0:
         status_db = sensor_configuration[0][4]
         upload_periodicity_db = sensor_configuration[0][10]
-        #reboot_periodicity_db = sensor_configuration[0][13]
-        #reboot_time_db = sensor_configuration[0][14]
 
         sensor_communication = cwifi.execute("""SELECT * FROM SensorCommunication""").fetchall()
         
@@ -698,30 +618,6 @@ def compare_db_with_cronjobs():
             elif i == 13:
                 upload_periodicity_cron = int(output_lines[i].split(" ")[0][2:])
 
-            # reboot periodicity and reboot time
-            # elif i == 19:
-
-            #     if output_lines[i][0] == "#":
-            #         reboot_periodicity_cron == "noreboot"
-            #     else:
-            #         cron_day = str(output_lines[i].split(" ")[2])
-            #         cron_day_of_week = str(output_lines[i].split(" ")[4])
-
-            #         if cron_day == "*":
-            #             if cron_day_of_week == "*":
-            #                 reboot_periodicity_cron = "daily"
-            #             elif cron_day_of_week == "0":
-            #                 reboot_periodicity_cron = "weekly"
-            #         elif cron_day == "*/2":
-            #             reboot_periodicity_cron = "everytwodays"
-            #         elif cron_day == "*/3":
-            #             reboot_periodicity_cron = "everythreedays"
-            #         elif cron_day == "1":
-            #             reboot_periodicity_cron = "monthly"        
-                        
-            #     reboot_time_cron = int(output_lines[i].split(" ")[1])
-
-
         status_cron = "Disabled"
         for char in first_chars_status:
             if char != "#":
@@ -732,12 +628,9 @@ def compare_db_with_cronjobs():
         #Comparar todos os parâmetros
         if status_db != status_cron or \
         detection_interface_db != detection_interface_cron or \
-        upload_periodicity_db != upload_periodicity_cron:               #upload_periodicity_db != upload_periodicity_cron or \
-        #reboot_periodicity_db != reboot_periodicity_cron or \
-        #reboot_time_db != reboot_time_cron:
+        upload_periodicity_db != upload_periodicity_cron:
             #Se houver um parametro diferente, invocar funcao 'write_crontab_file' com parametros da base de dados
             print("Different parameters from db to cronjobs. Rewritting tasks configuration file with parameters from database.")
-            #write_crontab_file(status_db, detection_interface_db, upload_periodicity_db, reboot_periodicity_db, reboot_time_db)
             write_crontab_file(status_db, detection_interface_db, upload_periodicity_db)
 
     else:

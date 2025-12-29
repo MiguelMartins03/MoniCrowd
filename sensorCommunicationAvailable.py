@@ -110,10 +110,7 @@ try:
                 if sensor_configuration is not None:
                     status = sensor_configuration[4]
                     uploadPeriodicity = sensor_configuration[10]
-                    #rebootPeriodicity = sensor_configuration[13]
-                    #rebootTime = sensor_configuration[14]
 
-                    #write_crontab_file(status, detection_interface, uploadPeriodicity, rebootPeriodicity, rebootTime)
                     write_crontab_file(status, detection_interface, uploadPeriodicity)
 
 
